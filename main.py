@@ -14,6 +14,7 @@ HEIGHT_CM = 170
 AGE = 32
 X_APP_ID = os.getenv("APP_ID")
 X_API_KEY = os.getenv("API_KEY")
+AUTH_TOKEN = os.getenv("AUTH_TOKEN")
 X_REMOTE_ID = "0"
 
 
@@ -30,8 +31,7 @@ def build_sheety_entry(json_resp:dict) -> dict:
             "time": today_time,
             "exercise": exercise,
             "duration": duration,
-            "calories": calories,
-            "id":4
+            "calories": calories
         }
     }
     return ntx_output
@@ -43,8 +43,8 @@ ntx_headers = {
 }
 
 
-# query = input("What workout did you do today?")
-query = "I ran three miles"
+query = input("What workout did you do today?")
+# query = "I ran three miles"
 
 
 ntx_query = {
@@ -61,16 +61,17 @@ ntx_query = {
 today = dt.datetime.today().date().strftime("%d/%m/%Y")
 today_time = dt.datetime.today().time().strftime("%H:%M:%S")
 
-print(today)
-print(today_time)
-
 
 resp = requests.post(url=EXERCISE_URL, headers=ntx_headers, json=ntx_query)
 resp.raise_for_status()
 json_resp = resp.json()
 ntx_json = build_sheety_entry(json_resp)
 
-print(ntx_json)
-sheety_resp = requests.post(url=SHEETY_URL,json=ntx_json)
+sheety_header = {
+    "Authorization": f"Bearer {AUTH_TOKEN}"
+}
+
+
+sheety_resp = requests.post(url=SHEETY_URL, headers=sheety_header, json=ntx_json)
 sheety_resp.raise_for_status()
 print(sheety_resp.text)
